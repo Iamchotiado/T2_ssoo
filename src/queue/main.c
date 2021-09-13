@@ -102,6 +102,7 @@ void agregar_quantum(Process* proceso, int quantum) {
     // si esta running
     if (proceso -> estado == 0) {
         proceso -> quantum = quantum;
+        printf("proceso que recien paso a la CPU(running), tiene un quantum de: %i\n", proceso -> quantum);
     }
     else
     {
@@ -111,6 +112,7 @@ void agregar_quantum(Process* proceso, int quantum) {
 
 void actualizar_datos(Process* proceso) {
     // si el proceso esta en running
+    
     if (proceso -> estado == 0)
     {
         // actualizamos el quantum y el cpu burst
@@ -126,11 +128,13 @@ void actualizar_datos(Process* proceso) {
                 break;
             }
         }
+        printf("El proceso: %s, le queda un quantum de: %i y un cpu burst de : %i\n", proceso ->nombre, proceso->quantum, proceso->cpu_bursts[0]);
     }
 
     // si el proceso esta en ready
     else if (proceso -> estado == 1)
     {
+        printf("Estoy en ready: %s\n", proceso->nombre);
         // no se actualiza nada por el momento
     }
     
@@ -149,11 +153,13 @@ void actualizar_datos(Process* proceso) {
                 break;
             }
         }
+        printf("El proceso: %s, le queda un IO burst de : %i\n", proceso ->nombre, proceso->io_bursts[0]);
     }
 
     // si el proceso esta en finished
     else if (proceso -> estado == 3)
     {
+        printf("Soy: %s y termine\n", proceso -> nombre);
         // no deberia entrar nunca a este if porque se supone
         // que el proceso debio haber sido sacado al inicio de la unidad de tiempo
     }

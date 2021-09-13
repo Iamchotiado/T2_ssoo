@@ -67,38 +67,39 @@ int main(int argc, char **argv)
     PID ++;
   };
 
-  printf("%s...........\n", procesos[1].nombre);
+  printf("%s...........\n", procesos[2].nombre);
 
   int tiempo = 0;
   int posiciones[100];
-  int numero_llegadas = 0;
+  int numero_llegadas;
   Queue* cola = NULL;
   int cantidad_procesos = 0;
   Process* running = NULL;
 
   while (1)
   {
+    numero_llegadas = 0;
     // si se esta usando la cpu
-    if (running != NULL && cola != NULL)
-    {
-      // vemos si el proceso que esta en la cpu, cede la cpu, es decir que se le acabo su rafaga de burst
-      // si es asi, lo pasamos a waiting y lo mandamos alfinal de la cola
-      running = ceder_cpu(cola, cola -> proceso);
+    // if (running != NULL && cola != NULL)
+    // {
+    //   // vemos si el proceso que esta en la cpu, cede la cpu, es decir que se le acabo su rafaga de burst
+    //   // si es asi, lo pasamos a waiting y lo mandamos alfinal de la cola
+    //   running = ceder_cpu(cola, cola -> proceso);
 
-      // si el proceso termino su ejecucion
-      if (running != NULL)
-      {
-        running = chequear_termino(cola -> proceso);
-      }
+    //   // si el proceso termino su ejecucion
+    //   if (running != NULL)
+    //   {
+    //     running = chequear_termino(cola -> proceso);
+    //   }
 
-      // si consume todo su quantum
-      if (running != NULL)
-      {
-        running = chequear_quantum(cola, cola -> proceso);
-      }
-      // si, no ocurre ninguno de los eventos anteriores significa que sigue el mismo proceso en la CPU
+    //   // si consume todo su quantum
+    //   if (running != NULL)
+    //   {
+    //     running = chequear_quantum(cola, cola -> proceso);
+    //   }
+    //   // si, no ocurre ninguno de los eventos anteriores significa que sigue el mismo proceso en la CPU
       
-    };
+    // };
 
     // Vemos cuantos procesos llegaron en este tiempo
     for (int i = 0; i < file -> len; i++)
@@ -121,12 +122,15 @@ int main(int argc, char **argv)
         cola = queue_init(&proceso_ag, cantidad_procesos, 0, 0, 0, 0);
         cola -> cantidad_procesos ++;
         sumar_fabrica_cola(cola, proceso_ag.n_fabrica);
+        printf("Cola creada con nuevo proceso, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, cola -> proceso -> nombre);
       }
       // si no la agregamos alfinal de la cola
       else
       {
         agregar_alfinal(cola -> proceso, &proceso_ag);
+        cola -> cantidad_procesos ++;
         sumar_fabrica_cola(cola, proceso_ag.n_fabrica);
+        printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, proceso_ag.nombre);
       }
     };
 
@@ -206,11 +210,13 @@ int main(int argc, char **argv)
         cola = queue_init(&procesos_llegados[0], cantidad_procesos, 0, 0, 0, 0);
         cola -> cantidad_procesos ++;
         sumar_fabrica_cola(cola, procesos_llegados[0].n_fabrica);
+        printf("Cola creada con nuevo proceso, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, cola -> proceso -> nombre);
         for (int i = 1; i < numero_llegadas; i++)
         {
           agregar_alfinal(cola -> proceso, &procesos_llegados[i]);
           cola -> cantidad_procesos ++;
           sumar_fabrica_cola(cola, procesos_llegados[i].n_fabrica);
+          printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, procesos_llegados[i].nombre);
         }
         
       }
@@ -222,6 +228,7 @@ int main(int argc, char **argv)
           agregar_alfinal(cola -> proceso, &procesos_llegados[i]);
           cola -> cantidad_procesos ++;
           sumar_fabrica_cola(cola, procesos_llegados[i].n_fabrica);
+          printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, procesos_llegados[i].nombre);
         }
       }
 
@@ -237,6 +244,8 @@ int main(int argc, char **argv)
       {
         int quantum = calcular_quantum(cola, running -> n_fabrica, Q);
         agregar_quantum(cola -> proceso, quantum);
+        // la funcion agregar quantum imprime el quantum
+        printf("El proceso: %s, paso a la cpu(running)\n", running -> nombre);
       }
     };
 
@@ -255,6 +264,7 @@ int main(int argc, char **argv)
     // pasamos a la siguiente unidad de tiemppo
     sleep(1);
     tiempo ++;
+    printf("\n\n TIEMPO %i\n\n", tiempo);
   }
   
 
