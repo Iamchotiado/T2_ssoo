@@ -69,7 +69,6 @@ int main(int argc, char **argv)
 
   printf("%s...........\n", procesos[1].nombre);
 
-  int cpu_use = 0;
   int tiempo = 0;
   int posiciones[100];
   int numero_llegadas = 0;
@@ -80,9 +79,25 @@ int main(int argc, char **argv)
   while (1)
   {
     // si se esta usando la cpu
-    if (cpu_use == 1)
+    if (running != NULL && cola != NULL)
     {
-      /* code */
+      // vemos si el proceso que esta en la cpu, cede la cpu, es decir que se le acabo su rafaga de burst
+      // si es asi, lo pasamos a waiting y lo mandamos alfinal de la cola
+      running = ceder_cpu(cola, cola -> proceso);
+
+      // si el proceso termino su ejecucion
+      if (running != NULL)
+      {
+        running = chequear_termino(cola -> proceso);
+      }
+
+      // si consume todo su quantum
+      if (running != NULL)
+      {
+        running = chequear_quantum(cola, cola -> proceso);
+      }
+      // si, no ocurre ninguno de los eventos anteriores significa que sigue el mismo proceso en la CPU
+      
     };
 
     // Vemos cuantos procesos llegaron en este tiempo
@@ -239,6 +254,7 @@ int main(int argc, char **argv)
     }
     // pasamos a la siguiente unidad de tiemppo
     sleep(1);
+    tiempo ++;
   }
   
 

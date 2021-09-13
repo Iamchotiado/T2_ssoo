@@ -3,6 +3,7 @@
 #include <math.h>
 #include "main.h"
 
+Process* proceso_siguiente;
 
 Queue* queue_init(Process* proceso, int cantidad_procesos, int cantidad_f1, int cantidad_f2, int cantidad_f3, int cantidad_f4) {
     Queue* queue = calloc(1, sizeof(Queue));
@@ -13,6 +14,7 @@ Queue* queue_init(Process* proceso, int cantidad_procesos, int cantidad_f1, int 
 void agregar_alfinal(Process* insertado, Process* insertar) {
     if (insertado -> next == NULL) {
         insertado -> next = insertar;
+        insertado -> next -> next = NULL;
     }
     else
     {
@@ -184,3 +186,127 @@ void pasar_a_ready(Process* proceso) {
         pasar_a_ready(proceso -> next);
     }
 };
+
+Process* ceder_cpu(Queue* cola, Process* proceso) {
+    proceso_siguiente = proceso -> next;
+    // si el primer elemento de la cola es 0(RUNNING)
+    if (proceso -> estado == 0)
+    {
+        // vemos si el cou burst en el que se esta llego a 0 y si este no es el ultimo, sino habria terminado
+        if (proceso -> cpu_bursts[proceso -> watch_cpu] == 0 && proceso -> watch_cpu != (proceso -> cantidad_rafagas - 1))
+        {
+            // Cambiamos el estado a waiting
+            proceso -> estado = 2;
+            //  y no es unico
+            if (proceso_siguiente != NULL)
+            {
+                // el proceso siguiente lo ponemos de primero
+                cola -> proceso = proceso_siguiente; 
+                // lo agregamos alfinal de la cola
+                agregar_alfinal(cola -> proceso, proceso);
+            }
+            return NULL;
+        }
+        else
+        {
+            return proceso;
+        }  
+    }
+    else if (proceso_siguiente -> estado == 0)
+    {
+        // vemos si el cou burst en el que se esta llego a 0
+        if (proceso_siguiente -> cpu_bursts[proceso_siguiente -> watch_cpu] == 0 && proceso_siguiente -> watch_cpu != (proceso_siguiente -> cantidad_rafagas - 1))
+        {
+            // Cambiamos el estado a waiting
+            proceso_siguiente -> estado = 2;
+
+            // el proceso siguiente lo ponemos de primero
+            proceso -> next = proceso_siguiente -> next;                                        
+            // lo agregamos alfinal de la cola
+            agregar_alfinal(proceso, proceso_siguiente);
+            return NULL;
+        }
+        else
+        {
+            return proceso_siguiente;
+        }  
+    }
+    
+    // si no ha llegado a 0, sigue corriendo
+    else
+    {
+        ceder_cpu(cola, proceso -> next);
+    }
+    
+    
+};
+
+Process* chequear_termino(Process* proceso) {
+    if (proceso -> estado == 0)
+    {
+        // si termino los bursts time, es decir termino su ejecucion
+        if (proceso -> cpu_bursts[proceso -> watch_cpu] == 0 && proceso -> watch_cpu == (proceso -> cantidad_rafagas - 1)) {
+            proceso -> estado = 3;
+            return NULL;
+        }
+        else
+        {
+            return proceso;
+        }
+        
+    }
+    else
+    {
+        chequear_termino(proceso -> next);
+    }
+}
+
+
+Process* chequear_quantum(Queue* cola, Process* proceso) {
+    proceso_siguiente = proceso -> next;
+    if (proceso -> estado == 0)
+    {
+        if (proceso -> quantum == 0)
+        {
+            // Cambiamos el estado a ready
+            proceso -> estado = 1;
+            //  y no es unico
+            if (proceso_siguiente != NULL)
+            {
+                // el proceso siguiente lo ponemos de primero
+                cola -> proceso = proceso_siguiente; 
+                // lo agregamos alfinal de la cola
+                agregar_alfinal(cola -> proceso, proceso);
+            }
+            return NULL;
+        }
+        else
+        {
+            return proceso;
+        }
+    }
+
+    else if (proceso_siguiente -> estado == 0)
+    {
+        // vemos si el quantum es 0
+        if (proceso_siguiente -> quantum == 0)
+        {
+            // Cambiamos el estado a waiting
+            proceso_siguiente -> estado = 2;
+
+            // el proceso siguiente lo ponemos de primero
+            proceso -> next = proceso_siguiente -> next;                                        
+            // lo agregamos alfinal de la cola
+            agregar_alfinal(proceso, proceso_siguiente);
+            return NULL;
+        }
+        else
+        {
+            return proceso_siguiente;
+        }  
+    }
+    else
+    {
+        chequear_quantum(cola, proceso -> next);
+    }
+}
