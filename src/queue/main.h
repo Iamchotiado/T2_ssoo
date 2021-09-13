@@ -25,8 +25,7 @@ void actualizar_estadisticas(Process* proceso);
 void sumar_fabrica_cola(Queue* cola, int n_fabrica);
 int calcular_quantum(Queue* cola, int n_fabrica, int Q);
 void agregar_quantum(Process* proceso, int quantum);
+void actualizar_datos(Process* proceso);
+void pasar_a_ready(Process* proceso);
 
 
-void add_process(Process proceso);
-Process delete_process(Process* procesos, Process proceso);
-void add_to_end(Process* procesos, Process proceso);

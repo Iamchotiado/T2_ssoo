@@ -26,10 +26,11 @@ Process* agregar_cpu(Process* proceso) {
         proceso -> estado = 0;
         return proceso;
     }
-    else
+    else if(proceso -> next != NULL)
     {
         agregar_cpu(proceso -> next);
     }
+    return NULL;
     
 };
 
@@ -54,7 +55,7 @@ void sumar_fabrica_cola(Queue* cola, int n_fabrica) {
 };
 
 int calcular_quantum(Queue* cola, int n_fabrica, int Q) {
-    int_n_i;
+    int n_i;
 
     if (n_fabrica == 1)
     {
@@ -105,3 +106,81 @@ void agregar_quantum(Process* proceso, int quantum) {
         agregar_quantum(proceso -> next, quantum);
     }
 }
+
+void actualizar_datos(Process* proceso) {
+    // si el proceso esta en running
+    if (proceso -> estado == 0)
+    {
+        // actualizamos el quantum y el cpu burst
+        proceso -> quantum --;
+        for (int i = 0; i < proceso -> cantidad_rafagas; i++)
+        {
+            // buscamos el primero de los cpu bursts que no ha terminado
+            if (proceso -> cpu_bursts[i] > 0)
+            {
+                int previo = proceso -> cpu_bursts[i];
+                proceso -> cpu_bursts[i] = previo - 1;
+                proceso -> watch_cpu = i;
+                break;
+            }
+        }
+    }
+
+    // si el proceso esta en ready
+    else if (proceso -> estado == 1)
+    {
+        // no se actualiza nada por el momento
+    }
+    
+    // si el proceso esta en waiting
+    else if (proceso -> estado == 2)
+    {
+        // actualizamos el io bursts
+        for (int i = 0; i < proceso -> cantidad_rafagas - 1; i++)
+        {
+            // buscamos el primero de los io bursts que no ha terminado
+            if (proceso -> io_bursts[i] > 0)
+            {
+                int previo = proceso -> io_bursts[i];
+                proceso -> io_bursts[i] = previo - 1;
+                proceso -> watch_io = i;
+                break;
+            }
+        }
+    }
+
+    // si el proceso esta en finished
+    else if (proceso -> estado == 3)
+    {
+        // no deberia entrar nunca a este if porque se supone
+        // que el proceso debio haber sido sacado al inicio de la unidad de tiempo
+    }
+    
+
+
+    // si esque hay un proceso en la posicion siguiente de la cola, actualizamos sus datos
+    if (proceso -> next != NULL)
+    {
+        actualizar_datos(proceso -> next);
+    }
+    
+};
+
+void pasar_a_ready(Process* proceso) {
+    // si el proceso esta en waiting
+    if (proceso -> estado == 2)
+    {
+        // vemos si el io burst en el que se esta llego a 0
+        if (proceso -> io_bursts[proceso -> watch_io] == 0)
+        {
+            // Cambiamos el estado a ready
+            proceso -> estado = 1;
+        }
+        
+    }
+
+    if (proceso -> next != NULL)
+    {
+        pasar_a_ready(proceso -> next);
+    }
+};

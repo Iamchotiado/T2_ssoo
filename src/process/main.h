@@ -22,9 +22,13 @@ struct process
   Process* next;
   // quantum del proceso
   int quantum;
+  // en que cpu_bursts estamos
+  int watch_cpu;
+  // en que io_bursts estamos
+  int watch_io;
 };
 
-Process* process_init(int PID, char* nombre, int tiempo_llegada, int n_fabrica, int estado, int cantidad_rafagas, int* cpu_burst, int* io_burst, int quantum);
+Process* process_init(int PID, char* nombre, int tiempo_llegada, int n_fabrica, int estado, int cantidad_rafagas, int* cpu_burst, int* io_burst, int quantum, int watch_cpu, int watch_io);
 void stop_process(Process proceso);
 
 

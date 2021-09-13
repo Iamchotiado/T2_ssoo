@@ -62,7 +62,7 @@ int main(int argc, char **argv)
       }
     };
 
-    Process* proceso = process_init(PID, nombre, tiempo_llegada, n_fabrica, 1, n_rafagas, cpu_bursts, io_bursts, 0);
+    Process* proceso = process_init(PID, nombre, tiempo_llegada, n_fabrica, 1, n_rafagas, cpu_bursts, io_bursts, 0, 0, 0);
     procesos[i] = *proceso;
     PID ++;
   };
@@ -217,14 +217,28 @@ int main(int argc, char **argv)
     {
       // agregamos el siguiente proceso ready a la cpu y calculamos su quantum
       running = agregar_cpu(cola -> proceso);
-      int quantum = calcular_quantum(cola, running -> n_fabrica, Q);
-      agregar_quantum(cola -> proceso, quantum);
+      // si es que habia algun proceso ready para ser agregado a la cpu
+      if (running != NULL)
+      {
+        int quantum = calcular_quantum(cola, running -> n_fabrica, Q);
+        agregar_quantum(cola -> proceso, quantum);
+      }
     };
 
     // actualizamos las estadisticas de los procesos
     
+    if (cola != NULL)
+    {
+      actualizar_datos(cola -> proceso);
+    }
     
-    
+    // vemos que los procesos que terminaron io bursts pasen a ready
+    if (cola != NULL)
+    {
+      pasar_a_ready(cola -> proceso);
+    }
+    // pasamos a la siguiente unidad de tiemppo
+    sleep(1);
   }
   
 
