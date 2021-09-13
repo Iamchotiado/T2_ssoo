@@ -51,28 +51,57 @@ void sumar_fabrica_cola(Queue* cola, int n_fabrica) {
         cola -> cantidad_f4 ++;
     }
 
-}
+};
 
 int calcular_quantum(Queue* cola, int n_fabrica, int Q) {
+    int_n_i;
+
     if (n_fabrica == 1)
     {
-        cola -> cantidad_f1 ++;
+        n_i = cola -> cantidad_f1;
     }
     else if (n_fabrica == 2)
     {
-        cola -> cantidad_f2 ++;
+        n_i = cola -> cantidad_f2;
     }
     else if (n_fabrica == 3)
     {
-        cola -> cantidad_f3 ++;
+        n_i = cola -> cantidad_f3;
     }
     else if (n_fabrica == 4)
     {
-        cola -> cantidad_f4 ++;
+        n_i = cola -> cantidad_f4;
     }
 
-}
+    int f = 0;
+    if (cola -> cantidad_f1 > 0)
+    {
+        f ++;
+    }
+    if (cola -> cantidad_f2 > 0)
+    {
+        f ++;
+    }
+    if (cola -> cantidad_f3 > 0)
+    {
+        f ++;
+    }
+    if (cola -> cantidad_f4 > 0)
+    {
+        f ++;
+    }
+
+    int quantum = floor(Q / (n_i * f));
+    return quantum;
+};
 
 void agregar_quantum(Process* proceso, int quantum) {
-
+    // si esta running
+    if (proceso -> estado == 0) {
+        proceso -> quantum = quantum;
+    }
+    else
+    {
+        agregar_quantum(proceso -> next, quantum);
+    }
 }

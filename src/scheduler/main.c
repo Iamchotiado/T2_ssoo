@@ -213,10 +213,12 @@ int main(int argc, char **argv)
     };
     
     // vemo si hay algun proceso en la cpu, sino eligimos 1 para que pase a running
-    if (running == NULL)
+    if (running == NULL && cola != NULL)
     {
       // agregamos el siguiente proceso ready a la cpu y calculamos su quantum
       running = agregar_cpu(cola -> proceso);
+      int quantum = calcular_quantum(cola, running -> n_fabrica, Q);
+      agregar_quantum(cola -> proceso, quantum);
     };
 
     // actualizamos las estadisticas de los procesos
