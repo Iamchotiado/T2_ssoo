@@ -3,7 +3,9 @@
 #include <math.h>
 #include "main.h"
 
-Process* proceso_siguiente;
+// Process* proceso_siguiente;
+// Process* proceso_siguiente;
+// Process* proceso_siguiente1;
 
 Queue* queue_init(Process* proceso, int cantidad_procesos, int cantidad_f1, int cantidad_f2, int cantidad_f3, int cantidad_f4) {
     Queue* queue = calloc(1, sizeof(Queue));
@@ -128,7 +130,7 @@ void actualizar_datos(Process* proceso) {
                 break;
             }
         }
-        printf("El proceso: %s, le queda un quantum de: %i y un cpu burst de : %i\n", proceso ->nombre, proceso->quantum, proceso->cpu_bursts[0]);
+        printf("El proceso: %s, le queda un quantum de: %i y un cpu burst de : %i\n", proceso ->nombre, proceso->quantum, proceso->cpu_bursts[proceso -> watch_cpu]);
     }
 
     // si el proceso esta en ready
@@ -141,6 +143,7 @@ void actualizar_datos(Process* proceso) {
     // si el proceso esta en waiting
     else if (proceso -> estado == 2)
     {
+        printf("\nESTOY EN WAITING\n");
         // actualizamos el io bursts
         for (int i = 0; i < proceso -> cantidad_rafagas - 1; i++)
         {
@@ -153,7 +156,7 @@ void actualizar_datos(Process* proceso) {
                 break;
             }
         }
-        printf("El proceso: %s, le queda un IO burst de : %i\n", proceso ->nombre, proceso->io_bursts[0]);
+        printf("El proceso: %s, le queda un IO burst de : %i\n", proceso ->nombre, proceso->io_bursts[proceso -> watch_io]);
     }
 
     // si el proceso esta en finished
@@ -194,23 +197,28 @@ void pasar_a_ready(Process* proceso) {
 };
 
 Process* ceder_cpu(Queue* cola, Process* proceso) {
-    proceso_siguiente = proceso -> next;
+    // proceso_siguiente = proceso -> next;
     // si el primer elemento de la cola es 0(RUNNING)
     if (proceso -> estado == 0)
     {
+        
         // vemos si el cou burst en el que se esta llego a 0 y si este no es el ultimo, sino habria terminado
         if (proceso -> cpu_bursts[proceso -> watch_cpu] == 0 && proceso -> watch_cpu != (proceso -> cantidad_rafagas - 1))
         {
+            printf("\nENTROOOO\n");
             // Cambiamos el estado a waiting
             proceso -> estado = 2;
             //  y no es unico
-            if (proceso_siguiente != NULL)
+            if (proceso -> next != NULL)
             {
                 // el proceso siguiente lo ponemos de primero
-                cola -> proceso = proceso_siguiente; 
+                cola -> proceso = proceso -> next; 
                 // lo agregamos alfinal de la cola
                 agregar_alfinal(cola -> proceso, proceso);
             }
+            printf("------------------------------------------\n");
+            imprimir_cola(cola -> proceso);
+            printf("------------------------------------------\n");
             return NULL;
         }
         else
@@ -218,23 +226,23 @@ Process* ceder_cpu(Queue* cola, Process* proceso) {
             return proceso;
         }  
     }
-    else if (proceso_siguiente -> estado == 0)
+    else if (proceso -> next -> estado == 0)
     {
         // vemos si el cou burst en el que se esta llego a 0
-        if (proceso_siguiente -> cpu_bursts[proceso_siguiente -> watch_cpu] == 0 && proceso_siguiente -> watch_cpu != (proceso_siguiente -> cantidad_rafagas - 1))
+        if (proceso -> next -> cpu_bursts[proceso -> next -> watch_cpu] == 0 && proceso -> next -> watch_cpu != (proceso -> next -> cantidad_rafagas - 1))
         {
             // Cambiamos el estado a waiting
-            proceso_siguiente -> estado = 2;
+            proceso -> next -> estado = 2;
 
             // el proceso siguiente lo ponemos de primero
-            proceso -> next = proceso_siguiente -> next;                                        
+            proceso -> next = proceso -> next -> next;                                        
             // lo agregamos alfinal de la cola
-            agregar_alfinal(proceso, proceso_siguiente);
+            agregar_alfinal(proceso, proceso -> next);
             return NULL;
         }
         else
         {
-            return proceso_siguiente;
+            return proceso -> next;
         }  
     }
     
@@ -269,7 +277,7 @@ Process* chequear_termino(Process* proceso) {
 
 
 Process* chequear_quantum(Queue* cola, Process* proceso) {
-    proceso_siguiente = proceso -> next;
+    // proceso_siguiente1 = proceso -> next;
     if (proceso -> estado == 0)
     {
         if (proceso -> quantum == 0)
@@ -277,10 +285,10 @@ Process* chequear_quantum(Queue* cola, Process* proceso) {
             // Cambiamos el estado a ready
             proceso -> estado = 1;
             //  y no es unico
-            if (proceso_siguiente != NULL)
+            if (proceso -> next != NULL)
             {
                 // el proceso siguiente lo ponemos de primero
-                cola -> proceso = proceso_siguiente; 
+                cola -> proceso = proceso -> next; 
                 // lo agregamos alfinal de la cola
                 agregar_alfinal(cola -> proceso, proceso);
             }
@@ -292,27 +300,36 @@ Process* chequear_quantum(Queue* cola, Process* proceso) {
         }
     }
 
-    else if (proceso_siguiente -> estado == 0)
+    else if (proceso -> next -> estado == 0)
     {
         // vemos si el quantum es 0
-        if (proceso_siguiente -> quantum == 0)
+        if (proceso -> next -> quantum == 0)
         {
             // Cambiamos el estado a waiting
-            proceso_siguiente -> estado = 2;
+            proceso -> next -> estado = 2;
 
             // el proceso siguiente lo ponemos de primero
-            proceso -> next = proceso_siguiente -> next;                                        
+            proceso -> next = proceso -> next -> next;                                        
             // lo agregamos alfinal de la cola
-            agregar_alfinal(proceso, proceso_siguiente);
+            agregar_alfinal(proceso, proceso -> next);
             return NULL;
         }
         else
         {
-            return proceso_siguiente;
+            return proceso -> next;
         }  
     }
     else
     {
         chequear_quantum(cola, proceso -> next);
+    }
+};
+
+
+void imprimir_cola(Process* proceso) {
+    if (proceso != NULL)
+    {
+        printf("Nombre: %s, Estado: %i\n", proceso -> nombre, proceso -> estado);
+        imprimir_cola(proceso -> next);
     }
 }

@@ -32,4 +32,6 @@ void eliminar_de_cola(Queue* cola, int PID);
 Process* chequear_termino(Process* proceso);
 Process* chequear_quantum(Queue* cola, Process* proceso);
 
+void imprimir_cola(Process* proceso);
+
 
