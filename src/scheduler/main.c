@@ -5,9 +5,9 @@
 #include "../process/main.c"
 #include "../queue/main.c"
 
-Process proceso_check;
-Process b;
-Process proceso_ag;
+Process* proceso_check;
+Process* b;
+Process* proceso_ag;
 // Process* procesos_llegados;
 
 Process* proceso_siguiente;
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 
   printf("Reading file of length %i:\n", file->len);
   
-  Process* procesos = calloc(file -> len, sizeof(Process));
+  Process** procesos = calloc(file -> len, sizeof(Process*));
   int PID = 1;
   for (int i = 0; i < file->len; i++)
   {
@@ -69,11 +69,11 @@ int main(int argc, char **argv)
     };
 
     Process* proceso = process_init(PID, nombre, tiempo_llegada, n_fabrica, 1, n_rafagas, cpu_bursts, io_bursts, 0, 0, 0);
-    procesos[i] = *proceso;
+    procesos[i] = proceso;
     PID ++;
   };
 
-  printf("%s...........\n", procesos[2].nombre);
+  printf("%s...........\n", procesos[2] -> nombre);
 
   int tiempo = 0;
   int posiciones[100];
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
     for (int i = 0; i < file -> len; i++)
     {
       proceso_check = procesos[i];
-      if (proceso_check.tiempo_llegada == tiempo)
+      if (proceso_check -> tiempo_llegada == tiempo)
       {
         posiciones[numero_llegadas] = i;
         numero_llegadas ++;
@@ -151,18 +151,18 @@ int main(int argc, char **argv)
         }
       if (cola == NULL)
       {
-        cola = queue_init(&proceso_ag, cantidad_procesos, 0, 0, 0, 0);
+        cola = queue_init(proceso_ag, cantidad_procesos, 0, 0, 0, 0);
         cola -> cantidad_procesos ++;
-        sumar_fabrica_cola(cola, proceso_ag.n_fabrica);
+        sumar_fabrica_cola(cola, proceso_ag -> n_fabrica);
         printf("Cola creada con nuevo proceso, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, cola -> proceso -> nombre);
       }
       // si no la agregamos alfinal de la cola
       else
       {
-        agregar_alfinal(cola -> proceso, &proceso_ag);
+        agregar_alfinal(cola -> proceso, proceso_ag);
         cola -> cantidad_procesos ++;
-        sumar_fabrica_cola(cola, proceso_ag.n_fabrica);
-        printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, proceso_ag.nombre);
+        sumar_fabrica_cola(cola, proceso_ag -> n_fabrica);
+        printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, proceso_ag -> nombre);
         if (tiempo == 2)
         {
           printf("-------------Despues de agregar el proceso 2-----------------\n");
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
     if (numero_llegadas > 1)
     {
 
-      Process* procesos_llegados = calloc(numero_llegadas, sizeof(Process));
+      Process** procesos_llegados = calloc(numero_llegadas, sizeof(Process*));
       for (int i = 0; i < numero_llegadas; i++)
       {
         procesos_llegados[i] = procesos[posiciones[i]];
@@ -189,7 +189,7 @@ int main(int argc, char **argv)
       for (int i = 0; i < numero_llegadas; i++)
       {
         for (int j = i + 1; j < numero_llegadas; ++j){
-            if (procesos_llegados[i].n_fabrica > procesos_llegados[j].n_fabrica){
+            if (procesos_llegados[i] -> n_fabrica > procesos_llegados[j] -> n_fabrica){
               b = procesos_llegados[i];
               procesos_llegados[i] = procesos_llegados[j];
               procesos_llegados[j] = b;
@@ -247,16 +247,16 @@ int main(int argc, char **argv)
       // si es el primer elemento en la cola la creamos y agregamos el resto de los procesos
       if (cola == NULL)
       {
-        cola = queue_init(&procesos_llegados[0], cantidad_procesos, 0, 0, 0, 0);
+        cola = queue_init(procesos_llegados[0], cantidad_procesos, 0, 0, 0, 0);
         cola -> cantidad_procesos ++;
-        sumar_fabrica_cola(cola, procesos_llegados[0].n_fabrica);
+        sumar_fabrica_cola(cola, procesos_llegados[0] -> n_fabrica);
         printf("Cola creada con nuevo proceso, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, cola -> proceso -> nombre);
         for (int i = 1; i < numero_llegadas; i++)
         {
-          agregar_alfinal(cola -> proceso, &procesos_llegados[i]);
+          agregar_alfinal(cola -> proceso, procesos_llegados[i]);
           cola -> cantidad_procesos ++;
-          sumar_fabrica_cola(cola, procesos_llegados[i].n_fabrica);
-          printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, procesos_llegados[i].nombre);
+          sumar_fabrica_cola(cola, procesos_llegados[i] -> n_fabrica);
+          printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, procesos_llegados[i] -> nombre);
         }
         
       }
@@ -265,10 +265,10 @@ int main(int argc, char **argv)
       {
         for (int i = 0; i < numero_llegadas; i++)
         {
-          agregar_alfinal(cola -> proceso, &procesos_llegados[i]);
+          agregar_alfinal(cola -> proceso, procesos_llegados[i]);
           cola -> cantidad_procesos ++;
-          sumar_fabrica_cola(cola, procesos_llegados[i].n_fabrica);
-          printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, procesos_llegados[i].nombre);
+          sumar_fabrica_cola(cola, procesos_llegados[i] -> n_fabrica);
+          printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, procesos_llegados[i] -> nombre);
         }
       }
       
