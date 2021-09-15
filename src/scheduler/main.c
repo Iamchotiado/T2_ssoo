@@ -8,7 +8,7 @@
 Process proceso_check;
 Process b;
 Process proceso_ag;
-Process* procesos_llegados;
+// Process* procesos_llegados;
 
 Process* proceso_siguiente;
 void desempatar (int posiciones[100], int cantidad) {
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
     if (numero_llegadas > 1)
     {
 
-      procesos_llegados = calloc(numero_llegadas, sizeof(Process));
+      Process* procesos_llegados = calloc(numero_llegadas, sizeof(Process));
       for (int i = 0; i < numero_llegadas; i++)
       {
         procesos_llegados[i] = procesos[posiciones[i]];
