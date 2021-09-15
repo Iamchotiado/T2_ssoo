@@ -17,7 +17,10 @@ void agregar_alfinal(Process* insertado, Process* insertar) {
     if (insertado -> next == NULL) {
         insertado -> next = insertar;
         insertado -> next -> next = NULL;
-        printf("El proceso de nombre %s dejo la CPU y pasa a estado Waiting\n", insertado -> next -> nombre);
+        if (insertado -> next -> estado == 2)
+        {
+            printf("El proceso de nombre %s dejo la CPU y pasa a estado Waiting\n", insertado -> next -> nombre);
+        }
     }
     else
     {
