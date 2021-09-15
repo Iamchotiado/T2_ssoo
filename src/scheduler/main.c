@@ -28,7 +28,7 @@ void desempatar (int posiciones[100], int cantidad) {
 int main(int argc, char **argv)
 {
 
-  int Q = 100;
+  int Q = 40;
   
   printf("Hello T2!\n");
 
@@ -83,12 +83,12 @@ int main(int argc, char **argv)
   Process* running = NULL;
   printf("\n TIEMPO %i\n", tiempo);
   while (1)
-  {
+  { 
     numero_llegadas = 0;
     // si se esta usando la cpu
     if (running != NULL && cola != NULL)
     {
-      if (tiempo ==4)
+      if (tiempo == 2)
       {
         printf("-------------Desoues de ceder la cpu-----------------\n");
         printf("------------------------------------------\n");
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
       }
       // si, no ocurre ninguno de los eventos anteriores significa que sigue el mismo proceso en la CPU
     };
-    if (tiempo ==4)
+    if (tiempo == 2)
       {
         printf("-------------Desoues de todos los ifs-----------------\n");
         printf("------------------------------------------\n");
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
         numero_llegadas ++;
       };
     }
-    if (tiempo ==4)
+    if (tiempo == 2)
       {
         printf("-------------Desoues de todos los ifs2-----------------\n");
         printf("------------------------------------------\n");
@@ -142,6 +142,13 @@ int main(int argc, char **argv)
     {
       proceso_ag = procesos[posiciones[0]];
       // si es el primer elemento en la cola la creamos
+      if (tiempo == 2)
+        {
+          printf("-------------Antes de agregar el proceso 2-----------------\n");
+          printf("------------------------------------------\n");
+          imprimir_cola(cola -> proceso);
+          printf("------------------------------------------\n");
+        }
       if (cola == NULL)
       {
         cola = queue_init(&proceso_ag, cantidad_procesos, 0, 0, 0, 0);
@@ -156,9 +163,9 @@ int main(int argc, char **argv)
         cola -> cantidad_procesos ++;
         sumar_fabrica_cola(cola, proceso_ag.n_fabrica);
         printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, proceso_ag.nombre);
-        if (tiempo ==4)
+        if (tiempo == 2)
         {
-          printf("-------------Despues de agregar el proceso 4-----------------\n");
+          printf("-------------Despues de agregar el proceso 2-----------------\n");
           printf("------------------------------------------\n");
           imprimir_cola(cola -> proceso);
           printf("------------------------------------------\n");
@@ -266,7 +273,7 @@ int main(int argc, char **argv)
       }
       
     };
-    if (tiempo ==4)
+    if (tiempo == 2)
       {
         printf("\n-------------Antes de elegir proceso que va a la cpu(despues de que llego el proceso4)-----------------\n");
         printf("------------------------------------------\n");
