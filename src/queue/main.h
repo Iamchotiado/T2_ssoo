@@ -29,7 +29,7 @@ void actualizar_datos(Process* proceso);
 void pasar_a_ready(Process* proceso);
 Process* ceder_cpu(Queue* cola, Process* proceso);
 void eliminar_de_cola(Queue* cola, int PID);
-Process* chequear_termino(Process* proceso);
+Process* chequear_termino(Queue* cola, Process* proceso);
 Process* chequear_quantum(Queue* cola, Process* proceso);
 
 void imprimir_cola(Process* proceso);

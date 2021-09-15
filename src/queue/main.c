@@ -17,6 +17,7 @@ void agregar_alfinal(Process* insertado, Process* insertar) {
     if (insertado -> next == NULL) {
         insertado -> next = insertar;
         insertado -> next -> next = NULL;
+        printf("El proceso de nombre %s dejo la CPU y pasa a estado Waiting\n", insertado -> next -> nombre);
     }
     else
     {
@@ -104,7 +105,7 @@ void agregar_quantum(Process* proceso, int quantum) {
     // si esta running
     if (proceso -> estado == 0) {
         proceso -> quantum = quantum;
-        printf("proceso que recien paso a la CPU(running), tiene un quantum de: %i\n", proceso -> quantum);
+        printf("EL proceso: %s  paso a la CPU(running), con un quantum de: %i\n", proceso -> nombre, proceso -> quantum);
     }
     else
     {
@@ -136,14 +137,14 @@ void actualizar_datos(Process* proceso) {
     // si el proceso esta en ready
     else if (proceso -> estado == 1)
     {
-        printf("Estoy en ready: %s\n", proceso->nombre);
+        // printf("Estoy en ready: %s\n", proceso->nombre);
         // no se actualiza nada por el momento
     }
     
     // si el proceso esta en waiting
     else if (proceso -> estado == 2)
     {
-        printf("\nESTOY EN WAITING\n");
+        // printf("\nESTOY EN WAITING\n");
         // actualizamos el io bursts
         for (int i = 0; i < proceso -> cantidad_rafagas - 1; i++)
         {
@@ -186,6 +187,7 @@ void pasar_a_ready(Process* proceso) {
         {
             // Cambiamos el estado a ready
             proceso -> estado = 1;
+            printf("El proceso %s paso a estado Ready\n", proceso -> nombre);
         }
         
     }
@@ -217,9 +219,6 @@ Process* ceder_cpu(Queue* cola, Process* proceso) {
                 // lo agregamos alfinal de la cola
                 agregar_alfinal(cola -> proceso, proceso);
             }
-            printf("------------------------------------------\n");
-            imprimir_cola(cola -> proceso);
-            printf("------------------------------------------\n");
             return NULL;
         }
         else
@@ -256,12 +255,26 @@ Process* ceder_cpu(Queue* cola, Process* proceso) {
     
 };
 
-Process* chequear_termino(Process* proceso) {
+Process* chequear_termino(Queue* cola, Process* proceso) {
     if (proceso -> estado == 0)
     {
         // si termino los bursts time, es decir termino su ejecucion
         if (proceso -> cpu_bursts[proceso -> watch_cpu] == 0 && proceso -> watch_cpu == (proceso -> cantidad_rafagas - 1)) {
             proceso -> estado = 3;
+            //  y no es unico
+            if (proceso -> next != NULL)
+            {
+                // el proceso siguiente lo ponemos de primero
+                cola -> proceso = proceso -> next; 
+                // lo agregamos alfinal de la cola
+                // agregar_alfinal(cola -> proceso, proceso);
+            }
+            // si es el unico y termino
+            else
+            {
+                cola -> proceso = NULL;
+            }
+            printf("Proceso: %s termino su ejecucion y fue eliminado del sistema\n", proceso -> nombre);
             return NULL;
         }
         else
@@ -272,7 +285,7 @@ Process* chequear_termino(Process* proceso) {
     }
     else
     {
-        chequear_termino(proceso -> next);
+        chequear_termino(cola, proceso -> next);
     }
 }
 

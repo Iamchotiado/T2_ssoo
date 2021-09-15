@@ -9,21 +9,10 @@ Process* proceso_check;
 Process* b;
 Process* proceso_ag;
 // Process* procesos_llegados;
+int contador_terminados = 0;
+int cantidad_procesos;
 
 Process* proceso_siguiente;
-void desempatar (int posiciones[100], int cantidad) {
-  int a;
-
-  for (int i = 0; i < cantidad; ++i){
-    for (int j = i + 1; j < cantidad; ++j){
-        if (posiciones[i] > posiciones[j]){
-          a = posiciones[i];
-          posiciones[i] = posiciones[j];
-          posiciones[j] = a;
-        }
-    }
-  }
-};
 
 int main(int argc, char **argv)
 {
@@ -35,6 +24,7 @@ int main(int argc, char **argv)
   InputFile *file = read_file("input.txt");
 
   printf("Reading file of length %i:\n", file->len);
+  cantidad_procesos = file -> len;
   
   Process** procesos = calloc(file -> len, sizeof(Process*));
   int PID = 1;
@@ -88,13 +78,6 @@ int main(int argc, char **argv)
     // si se esta usando la cpu
     if (running != NULL && cola != NULL)
     {
-      if (tiempo == 2)
-      {
-        printf("-------------Desoues de ceder la cpu-----------------\n");
-        printf("------------------------------------------\n");
-        imprimir_cola(cola -> proceso);
-        printf("------------------------------------------\n");
-      }
       // vemos si el proceso que esta en la cpu, cede la cpu, es decir que se le acabo su rafaga de burst
       // si es asi, lo pasamos a waiting y lo mandamos alfinal de la cola
       running = ceder_cpu(cola, cola -> proceso);
@@ -102,7 +85,13 @@ int main(int argc, char **argv)
       // si el proceso termino su ejecucion
       if (running != NULL)
       {
-        running = chequear_termino(cola -> proceso);
+        running = chequear_termino(cola, cola -> proceso);
+        // agregamos uno al contador de procesos terminados si se termino de ejecutar un proceso
+        if (running == NULL)
+        {
+          contador_terminados ++;
+        }
+        
       }
 
       // si consume todo su quantum
@@ -112,13 +101,7 @@ int main(int argc, char **argv)
       }
       // si, no ocurre ninguno de los eventos anteriores significa que sigue el mismo proceso en la CPU
     };
-    if (tiempo == 2)
-      {
-        printf("-------------Desoues de todos los ifs-----------------\n");
-        printf("------------------------------------------\n");
-        imprimir_cola(cola -> proceso);
-        printf("------------------------------------------\n");
-      }
+
     // Vemos cuantos procesos llegaron en este tiempo
     for (int i = 0; i < file -> len; i++)
     {
@@ -129,32 +112,18 @@ int main(int argc, char **argv)
         numero_llegadas ++;
       };
     }
-    if (tiempo == 2)
-      {
-        printf("-------------Desoues de todos los ifs2-----------------\n");
-        printf("------------------------------------------\n");
-        imprimir_cola(cola -> proceso);
-        printf("------------------------------------------\n");
-      }
     
     // si llego un solo nuevo proceso en este instante de tiempo
     if (numero_llegadas == 1)
     {
       proceso_ag = procesos[posiciones[0]];
       // si es el primer elemento en la cola la creamos
-      if (tiempo == 2)
-        {
-          printf("-------------Antes de agregar el proceso 2-----------------\n");
-          printf("------------------------------------------\n");
-          imprimir_cola(cola -> proceso);
-          printf("------------------------------------------\n");
-        }
       if (cola == NULL)
       {
         cola = queue_init(proceso_ag, cantidad_procesos, 0, 0, 0, 0);
         cola -> cantidad_procesos ++;
         sumar_fabrica_cola(cola, proceso_ag -> n_fabrica);
-        printf("Cola creada con nuevo proceso, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, cola -> proceso -> nombre);
+        printf("Cola creada con nuevo proceso de nombre %s, numero de elementos en la cola: %i.\n", cola -> proceso -> nombre, cola -> cantidad_procesos);
       }
       // si no la agregamos alfinal de la cola
       else
@@ -162,14 +131,7 @@ int main(int argc, char **argv)
         agregar_alfinal(cola -> proceso, proceso_ag);
         cola -> cantidad_procesos ++;
         sumar_fabrica_cola(cola, proceso_ag -> n_fabrica);
-        printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, proceso_ag -> nombre);
-        if (tiempo == 2)
-        {
-          printf("-------------Despues de agregar el proceso 2-----------------\n");
-          printf("------------------------------------------\n");
-          imprimir_cola(cola -> proceso);
-          printf("------------------------------------------\n");
-        }
+        printf("Se agrego el proceso de nombre %s a la cola, numero de elementos en la cola: %i.\n", proceso_ag -> nombre, cola -> cantidad_procesos);
       }
     };
 
@@ -250,13 +212,13 @@ int main(int argc, char **argv)
         cola = queue_init(procesos_llegados[0], cantidad_procesos, 0, 0, 0, 0);
         cola -> cantidad_procesos ++;
         sumar_fabrica_cola(cola, procesos_llegados[0] -> n_fabrica);
-        printf("Cola creada con nuevo proceso, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, cola -> proceso -> nombre);
+        printf("Cola creada con nuevo proceso de nombre %s, numero de elementos en la cola: %i.\n", cola -> proceso -> nombre, cola -> cantidad_procesos);
         for (int i = 1; i < numero_llegadas; i++)
         {
           agregar_alfinal(cola -> proceso, procesos_llegados[i]);
           cola -> cantidad_procesos ++;
           sumar_fabrica_cola(cola, procesos_llegados[i] -> n_fabrica);
-          printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, procesos_llegados[i] -> nombre);
+          printf("Se agrego el proceso de nombre %s a la cola, numero de elementos en la cola: %i.\n", procesos_llegados[i] -> nombre, cola -> cantidad_procesos);
         }
         
       }
@@ -268,21 +230,14 @@ int main(int argc, char **argv)
           agregar_alfinal(cola -> proceso, procesos_llegados[i]);
           cola -> cantidad_procesos ++;
           sumar_fabrica_cola(cola, procesos_llegados[i] -> n_fabrica);
-          printf("Se agrego el proceso a la cola, numero de elementos en la cola: %i, de nombre %s\n", cola -> cantidad_procesos, procesos_llegados[i] -> nombre);
+          printf("Se agrego el proceso de nombre: %s a la cola, numero de elementos en la cola: %i.\n", procesos_llegados[i] -> nombre, cola -> cantidad_procesos);
         }
       }
       
     };
-    if (tiempo == 2)
-      {
-        printf("\n-------------Antes de elegir proceso que va a la cpu(despues de que llego el proceso4)-----------------\n");
-        printf("------------------------------------------\n");
-        imprimir_cola(cola -> proceso);
-        printf("------------------------------------------\n");
-      }
-
+    
     // vemo si hay algun proceso en la cpu, sino eligimos 1 para que pase a running
-    if (running == NULL && cola != NULL)
+    if (running == NULL && cola != NULL && cola -> proceso != NULL)
     {
       // agregamos el siguiente proceso ready a la cpu y calculamos su quantum
       running = agregar_cpu(cola -> proceso);
@@ -292,31 +247,47 @@ int main(int argc, char **argv)
         int quantum = calcular_quantum(cola, running -> n_fabrica, Q);
         agregar_quantum(cola -> proceso, quantum);
         // la funcion agregar quantum imprime el quantum
-        printf("El proceso: %s, paso a la cpu(running)\n", running -> nombre);
+        // printf("El proceso: %s, paso a la cpu(running)\n", running -> nombre);
       }
     };
 
     // actualizamos las estadisticas de los procesos
     
-    if (cola != NULL)
+    if (cola != NULL && cola -> proceso != NULL)
     {
       actualizar_datos(cola -> proceso);
     }
     
     // vemos que los procesos que terminaron io bursts pasen a ready
-    if (cola != NULL)
+    if (cola != NULL && cola -> proceso != NULL)
     {
       pasar_a_ready(cola -> proceso);
     }
-    // pasamos a la siguiente unidad de tiemppo
-    if (tiempo > 0)
+    // imprimimos la cola alfinal de la unidad de tiempo
+    if (cola != NULL)
     {
       printf("------------------------------------------\n");
+      printf("Cola alfinal del tiempo %i.\n", tiempo);
       imprimir_cola(cola -> proceso);
       printf("------------------------------------------\n");
     }
     
-    sleep(1);
+    // pasamos a la siguiente unidad de tiempo
+    // sleep(1);
+
+    // printeamos si la CPU no esta ejecutando ningun proceso
+    if (running == NULL)
+    {
+      printf("Actualmente la CPU no se encuentra ejecutando ningun proceso\n");
+    }
+    
+    // vemos si ya terminaron todos los procesos
+    if (contador_terminados == file -> len)
+    {
+      printf("\n TODOS LOS PROCESOS HAN TERMINADO SU EJECUCION \n");
+      break;
+    }
+    
     tiempo ++;
     printf("\n TIEMPO %i\n", tiempo);
   }
