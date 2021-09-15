@@ -10,7 +10,7 @@ Process* b;
 Process* proceso_ag;
 // Process* procesos_llegados;
 int contador_terminados = 0;
-int cantidad_procesos;
+int cantidad_file;
 
 Process* proceso_siguiente;
 
@@ -24,7 +24,9 @@ int main(int argc, char **argv)
   InputFile *file = read_file("input.txt");
 
   printf("Reading file of length %i:\n", file->len);
-  cantidad_procesos = file -> len;
+  cantidad_file = file -> len;
+  // creamos el array donde guardamos procesos terminados
+  crear_array_terminados(cantidad_file);
   
   Process** procesos = calloc(file -> len, sizeof(Process*));
   int PID = 1;
@@ -63,7 +65,14 @@ int main(int argc, char **argv)
     PID ++;
   };
 
-  printf("%s...........\n", procesos[2] -> nombre);
+  // imprimimos los estados
+  printf("\n-----------------------------\n");
+  printf("ESTADOS:\n\n");
+  printf("RUNNING = 0\n");
+  printf("READY = 1\n");
+  printf("WAITING = 2\n");
+  printf("FINISHED = 3\n");
+  printf("-----------------------------\n");
 
   int tiempo = 0;
   int posiciones[100];
@@ -71,6 +80,8 @@ int main(int argc, char **argv)
   Queue* cola = NULL;
   int cantidad_procesos = 0;
   Process* running = NULL;
+  
+  printf("\nComienza simulacion:\n");
   printf("\n TIEMPO %i\n", tiempo);
   while (1)
   { 
@@ -282,57 +293,15 @@ int main(int argc, char **argv)
     }
     
     // vemos si ya terminaron todos los procesos
-    if (contador_terminados == file -> len)
+    if (contador_terminados == cantidad_file)
     {
       printf("\n TODOS LOS PROCESOS HAN TERMINADO SU EJECUCION \n");
+      // escribir en archivo antes de terminar
+      printf("Escribiendo en archivo...\n");
       break;
     }
     
     tiempo ++;
     printf("\n TIEMPO %i\n", tiempo);
   }
-  
-
-  
-
-  // while(1) {
-  //   int numero_llegadas = 0;
-  //   for (int i = 0; i < file->len; i++)
-  //   {
-  //     char **line = file->lines[i];
-  //     // char nombre[254] = line[0];
-  //     int tiempo_llegada = atoi(line[1]);
-  //     int n_fabrica = atoi(line[2]);
-  //     // int n_rafagas = atoi(line[3]);
-  //     // int cpu_bursts[n_rafagas];
-  //     // int io_bursts[n_rafagas - 1];
-  //     printf(
-  //         "\tProcess %s from factory %s has init time of %s and %s bursts.\n",
-  //         line[0], line[2], line[1], line[3]);
-      
-  //     if (tiempo_llegada == tiempo)
-  //     {
-  //       char* nombre = line[0];
-  //       nombres[numero_llegadas] = nombre;
-  //       posiciones[numero_llegadas] = i;
-  //       nums_fabrica[numero_llegadas] = n_fabrica;
-  //       numero_llegadas ++;
-  //     }
-  //   };
-
-
-  //   // si  llego alguien en este tiempo
-  //   if (numero_llegadas > 0)
-  //   {
-  //     for (int i = 0; i < numero_llegadas; i++)
-  //     {
-  //       /* code */
-  //     }
-      
-  //   }
-    
-  // }
-
-  // char* input = argv[1];
-  // printf("input%s", input);
-}
+};

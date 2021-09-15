@@ -6,6 +6,7 @@
 Process* proceso_agregar;
 // Process* proceso_siguiente;
 // Process* proceso_siguiente1;
+Process** terminados;
 
 Queue* queue_init(Process* proceso, int cantidad_procesos, int cantidad_f1, int cantidad_f2, int cantidad_f3, int cantidad_f4) {
     Queue* queue = calloc(1, sizeof(Queue));
@@ -350,4 +351,8 @@ void imprimir_cola(Process* proceso) {
         printf("Nombre: %s, Estado: %i\n", proceso -> nombre, proceso -> estado);
         imprimir_cola(proceso -> next);
     }
+};
+
+void crear_array_terminados(int size) {
+    terminados = calloc(size, sizeof(Process*));
 }
