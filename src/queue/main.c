@@ -24,7 +24,7 @@ void agregar_alfinal(Process* insertado, Process* insertar) {
         {
             printf("El proceso de nombre %s dejo la CPU y pasa a estado Waiting\n", insertado -> next -> nombre);
         }
-        else if (insertado -> next -> estado == 1)
+        else if (insertado -> next -> estado == 1 && insertado -> next -> veces_cpu > 0)
         {
             printf("El proceso de nombre %s dejo la CPU y pasa a estado Ready\n", insertado -> next -> nombre);
         }
@@ -419,3 +419,16 @@ void imprimir_terminados(Process** array_terminados) {
     }
     
 };
+
+void imprimir_resultados(Process** array_terminados) {
+    for (int i = 0; i < procesos_entrantes; i++)
+    {
+        printf("\nResultados: %s\n", array_terminados[i] -> nombre);
+        printf("Numero de veces para usar CPU: %i\n", array_terminados[i] -> veces_cpu);
+        printf("Numero de veces interrumpido(quantum out): %i\n", array_terminados[i] -> veces_quantum);
+        printf("Tiempo en sistema: %i\n", array_terminados[i] -> tiempo_permanencia);
+        printf("Tiempo en ser atentido por primera vez: %i\n", array_terminados[i] -> tiempo_running);
+        printf("Tiempo en cola: %i\n", array_terminados[i] -> tiempo_cola);
+    }
+    
+}

@@ -300,6 +300,7 @@ int main(int argc, char **argv)
       // escribir en archivo antes de terminar
       printf("Escribiendo en archivo...\n");
       imprimir_terminados(terminados);
+      imprimir_resultados(terminados);
       break;
     }
     

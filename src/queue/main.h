@@ -36,5 +36,6 @@ void imprimir_cola(Process* proceso);
 void crear_array_terminados(int size);
 void agregar_terminado(Process* proceso);
 void imprimir_terminados(Process** array_terminados);
+void imprimir_resultados(Process** array_terminados);
 
 
