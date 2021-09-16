@@ -432,3 +432,26 @@ void imprimir_resultados(Process** array_terminados) {
     }
     
 }
+
+void crear_archivo_output(Process** array_terminados, FILE* output_stream) {
+
+    int contador = 1;
+    int i = 0;
+    while (i < procesos_entrantes)
+    {
+        if (array_terminados[i] -> PID == contador)
+        {
+            fprintf(output_stream, "%s,", array_terminados[i] -> nombre);
+            fprintf(output_stream, "%i,", array_terminados[i] -> veces_cpu);
+            fprintf(output_stream, "%i,", array_terminados[i] -> veces_quantum);
+            fprintf(output_stream, "%i,", array_terminados[i] -> tiempo_permanencia);
+            fprintf(output_stream, "%i,", array_terminados[i] -> tiempo_running);
+            fprintf(output_stream, "%i\n", array_terminados[i] -> tiempo_cola);
+            // imprimir todo
+            i = -1;
+            contador ++;
+        }
+        i ++;
+    }
+    
+}

@@ -11,17 +11,16 @@ Process* proceso_ag;
 // Process* procesos_llegados;
 int contador_terminados = 0;
 int cantidad_file;
+int Q;
 
 Process* proceso_siguiente;
 
 int main(int argc, char **argv)
 {
-
-  int Q = 10;
   
   printf("Hello T2!\n");
 
-  InputFile *file = read_file("input.txt");
+  InputFile *file = read_file(argv[1]);
 
   printf("Reading file of length %i:\n", file->len);
   cantidad_file = file -> len;
@@ -64,6 +63,22 @@ int main(int argc, char **argv)
     procesos[i] = proceso;
     PID ++;
   };
+
+  // recibimos el valor de Q
+  // en el caso de no existir le agregamos el valor de 100
+  char* q = argv[3];
+  if (!q)
+  {
+    Q = 10;
+  }
+  else
+  {
+    Q = atoi(q);
+  }
+  printf("El valor de Q es: %i\n", Q);
+
+  // Abrimos el archivo de output
+  FILE* output_stream = fopen(argv[2], "w");
 
   // imprimimos los estados
   printf("\n-----------------------------\n");
@@ -298,13 +313,16 @@ int main(int argc, char **argv)
     {
       printf("\n TODOS LOS PROCESOS HAN TERMINADO SU EJECUCION \n");
       // escribir en archivo antes de terminar
-      printf("Escribiendo en archivo...\n");
-      imprimir_terminados(terminados);
-      imprimir_resultados(terminados);
+      printf("\nEscribiendo en archivo...\n");
+      // imprimir_terminados(terminados);
+      // imprimir_resultados(terminados);
+      crear_archivo_output(terminados, output_stream);
       break;
     }
     
     tiempo ++;
     printf("\n TIEMPO %i\n", tiempo);
   }
+  // Cerrar archivo de output
+  fclose(output_stream);
 };
