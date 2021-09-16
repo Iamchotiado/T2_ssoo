@@ -69,7 +69,7 @@ int main(int argc, char **argv)
   char* q = argv[3];
   if (!q)
   {
-    Q = 10;
+    Q = 100;
   }
   else
   {
