@@ -262,9 +262,6 @@ int main(int argc, char **argv)
       imprimir_cola(cola -> proceso);
       printf("------------------------------------------\n");
     }
-    
-    // pasamos a la siguiente unidad de tiempo
-    // sleep(1);
 
     // printeamos si la CPU no esta ejecutando ningun proceso
     if (running == NULL)
@@ -283,6 +280,9 @@ int main(int argc, char **argv)
       crear_archivo_output(terminados, output_stream);
       break;
     }
+
+    // pasamos a la siguiente unidad de tiempo
+    sleep(1);
 
     tiempo ++;
     printf("\n TIEMPO %i\n", tiempo);
