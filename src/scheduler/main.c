@@ -171,9 +171,8 @@ int main(int argc, char **argv)
         procesos_llegados[i] = procesos[posiciones[i]];
       }
       
-      // ordenamos segun menor numero de fabrica
-      // descomentar linea de abajo si no se arregla
-      // Process b;
+      // ordenamos procesos que llegan por primera vez a la cola segun criterio pedido
+      
       for (int i = 0; i < numero_llegadas; i++)
       {
         for (int j = i + 1; j < numero_llegadas; ++j){
@@ -182,54 +181,19 @@ int main(int argc, char **argv)
               procesos_llegados[i] = procesos_llegados[j];
               procesos_llegados[j] = b;
             }
+            else if (procesos_llegados[i] -> n_fabrica == procesos_llegados[j] -> n_fabrica)
+            {
+              if (strcmp(procesos_llegados[i] -> nombre, procesos_llegados[j] -> nombre) > 0)
+              {
+                b = procesos_llegados[i];
+                procesos_llegados[i] = procesos_llegados[j];
+                procesos_llegados[j] = b;
+              }
+            }
+            
         }
       }
-      // Todo lo comentado aca es el desempate segun el segundo criterio
-      // vemos si hay algun empate en el numero de fabrica para desempatar por el segundo criterio
-      // int f1 = 0;
-      // int f2 = 0;
-      // int f3 = 0;
-      // int f4 = 0;
-      // int pf1 = 0;
-      // int pf2 = 0;
-      // int pf3 = 0;
-      // int pf4 = 0;
-      // for (int i = 0; i < numero_llegadas; i++)
-      // {
-      //   if (procesos_llegados[i].n_fabrica == 1)
-      //   {
-      //     f1 ++;
-      //     pf1 = i;
-      //   }
-      //   else if (procesos_llegados[i].n_fabrica == 2)
-      //   {
-      //     f2 ++;
-      //     pf2 = i;
-      //   }
-      //   else if (procesos_llegados[i].n_fabrica == 3)
-      //   {
-      //     f3 ++;
-      //     pf3 = i;
-      //   }
-      //   else if (procesos_llegados[i].n_fabrica == 4)
-      //   {
-      //     f4 ++;
-      //     pf4 = i;
-      //   }
-      // }
       
-      // ordenamos segun menor nombre de proceso
-      // Process a;
-      // for (int i = 0; i < numero_llegadas; i++)
-      // {
-      //   for (int j = i + 1; j < numero_llegadas; ++j){
-      //       if (strcmp(procesos_llegados[i].nombre, procesos_llegados[j].nombre) < 0){
-      //         a = procesos_llegados[i];
-      //         procesos_llegados[i] = procesos_llegados[j];
-      //         procesos_llegados[j] = a;
-      //       }
-      //   }
-      // }
 
       // ahora que estan ordenados, agregamos todos al final de la cola
       // si es el primer elemento en la cola la creamos y agregamos el resto de los procesos
@@ -314,12 +278,12 @@ int main(int argc, char **argv)
       printf("\n TODOS LOS PROCESOS HAN TERMINADO SU EJECUCION \n");
       // escribir en archivo antes de terminar
       printf("\nEscribiendo en archivo...\n");
-      // imprimir_terminados(terminados);
-      // imprimir_resultados(terminados);
+      imprimir_terminados(terminados);
+      imprimir_resultados(terminados);
       crear_archivo_output(terminados, output_stream);
       break;
     }
-    
+
     tiempo ++;
     printf("\n TIEMPO %i\n", tiempo);
   }

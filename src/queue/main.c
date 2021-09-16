@@ -368,7 +368,6 @@ Process* chequear_quantum(Queue* cola, Process* proceso) {
         // vemos si el quantum es 0
         if (proceso -> next -> quantum == 0)
         {
-            printf("ENTRO A CHEQUEAR_QUANTUM");
             // Cambiamos el estado a waiting
             proceso_agregar = proceso -> next;
             proceso_agregar -> estado = 2;
