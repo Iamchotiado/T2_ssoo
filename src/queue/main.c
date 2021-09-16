@@ -7,6 +7,8 @@ Process* proceso_agregar;
 // Process* proceso_siguiente;
 // Process* proceso_siguiente1;
 Process** terminados;
+int procesos_entrantes;
+int numero_eliminado = 0;
 
 Queue* queue_init(Process* proceso, int cantidad_procesos, int cantidad_f1, int cantidad_f2, int cantidad_f3, int cantidad_f4) {
     Queue* queue = calloc(1, sizeof(Queue));
@@ -22,6 +24,10 @@ void agregar_alfinal(Process* insertado, Process* insertar) {
         {
             printf("El proceso de nombre %s dejo la CPU y pasa a estado Waiting\n", insertado -> next -> nombre);
         }
+        else if (insertado -> next -> estado == 1)
+        {
+            printf("El proceso de nombre %s dejo la CPU y pasa a estado Ready\n", insertado -> next -> nombre);
+        }
     }
     else
     {
@@ -33,11 +39,13 @@ Process* agregar_cpu(Process* proceso) {
     // si esta ready
     if (proceso -> estado == 1) {
         proceso -> estado = 0;
+        // sumamos en 1 la cantidad de veces que se agrego a la cpu
+        proceso -> veces_cpu ++;
         return proceso;
     }
     else if(proceso -> next != NULL)
     {
-        agregar_cpu(proceso -> next);
+        return agregar_cpu(proceso -> next);
     }
     return NULL;
     
@@ -118,8 +126,16 @@ void agregar_quantum(Process* proceso, int quantum) {
 }
 
 void actualizar_datos(Process* proceso) {
-    // si el proceso esta en running
+    // sumamos 1 al tiempo que el proceso lleva en el sistema
+    proceso -> tiempo_permanencia ++;
+    // sumamos 1 al tiempo en que el proceso aun no es atendido por la cpu
+    if (proceso -> veces_cpu == 0)
+    {
+        proceso -> tiempo_running ++;
+    }
     
+
+    // si el proceso esta en running
     if (proceso -> estado == 0)
     {
         // actualizamos el quantum y el cpu burst
@@ -143,11 +159,15 @@ void actualizar_datos(Process* proceso) {
     {
         // printf("Estoy en ready: %s\n", proceso->nombre);
         // no se actualiza nada por el momento
+        // sumamos 1 al tiempo en que ha estado en la cola
+        proceso -> tiempo_cola ++;
     }
     
     // si el proceso esta en waiting
     else if (proceso -> estado == 2)
     {
+        // sumamos 1 al tiempo en que ha estado en la cola
+        proceso -> tiempo_cola ++;
         // printf("\nESTOY EN WAITING\n");
         // actualizamos el io bursts
         for (int i = 0; i < proceso -> cantidad_rafagas - 1; i++)
@@ -191,7 +211,7 @@ void pasar_a_ready(Process* proceso) {
         {
             // Cambiamos el estado a ready
             proceso -> estado = 1;
-            printf("El proceso %s paso a estado Ready\n", proceso -> nombre);
+            printf("El proceso %s paso a estado Ready, ya que termino su I/O Burst\n", proceso -> nombre);
         }
         
     }
@@ -253,7 +273,7 @@ Process* ceder_cpu(Queue* cola, Process* proceso) {
     // si no ha llegado a 0, sigue corriendo
     else
     {
-        ceder_cpu(cola, proceso -> next);
+        return ceder_cpu(cola, proceso -> next);
     }
     
     
@@ -265,6 +285,28 @@ Process* chequear_termino(Queue* cola, Process* proceso) {
         // si termino los bursts time, es decir termino su ejecucion
         if (proceso -> cpu_bursts[proceso -> watch_cpu] == 0 && proceso -> watch_cpu == (proceso -> cantidad_rafagas - 1)) {
             proceso -> estado = 3;
+
+            // restamos al n_i de la fabrica del proceso
+            if (proceso -> n_fabrica == 1)
+            {
+                cola -> cantidad_f1 --;
+            }
+            else if (proceso -> n_fabrica == 2)
+            {
+                cola -> cantidad_f2 --;
+            }
+            else if (proceso -> n_fabrica == 3)
+            {
+                cola -> cantidad_f3 --;
+            }
+            else if (proceso -> n_fabrica == 4)
+            {
+                cola -> cantidad_f4 --;
+            };
+            // ............................
+            
+            // agregamos el proceso al array de terminados
+            agregar_terminado(proceso);
             //  y no es unico
             if (proceso -> next != NULL)
             {
@@ -289,7 +331,7 @@ Process* chequear_termino(Queue* cola, Process* proceso) {
     }
     else
     {
-        chequear_termino(cola, proceso -> next);
+        return chequear_termino(cola, proceso -> next);
     }
 }
 
@@ -300,8 +342,11 @@ Process* chequear_quantum(Queue* cola, Process* proceso) {
     {
         if (proceso -> quantum == 0)
         {
+            
             // Cambiamos el estado a ready
             proceso -> estado = 1;
+            // sumamos en 1 la veces que ha sido interrumpido
+            proceso -> veces_quantum ++;
             //  y no es unico
             if (proceso -> next != NULL)
             {
@@ -323,9 +368,12 @@ Process* chequear_quantum(Queue* cola, Process* proceso) {
         // vemos si el quantum es 0
         if (proceso -> next -> quantum == 0)
         {
+            printf("ENTRO A CHEQUEAR_QUANTUM");
             // Cambiamos el estado a waiting
             proceso_agregar = proceso -> next;
             proceso_agregar -> estado = 2;
+            // sumamos en 1 la veces que ha sido interrumpido
+            proceso_agregar -> veces_quantum ++;
 
             // el proceso siguiente lo ponemos de primero
             proceso -> next = proceso -> next -> next;                                        
@@ -340,7 +388,7 @@ Process* chequear_quantum(Queue* cola, Process* proceso) {
     }
     else
     {
-        chequear_quantum(cola, proceso -> next);
+        return chequear_quantum(cola, proceso -> next);
     }
 };
 
@@ -355,4 +403,19 @@ void imprimir_cola(Process* proceso) {
 
 void crear_array_terminados(int size) {
     terminados = calloc(size, sizeof(Process*));
-}
+    procesos_entrantes = size;
+};
+
+void agregar_terminado(Process* proceso) {
+    terminados[numero_eliminado] = proceso;
+    numero_eliminado ++;
+};
+
+void imprimir_terminados(Process** array_terminados) {
+    printf("\nProcesos que terminaron\n\n");
+    for (int i = 0; i < procesos_entrantes; i++)
+    {
+        printf("%i) %s, Estado = %i\n", i + 1, array_terminados[i] -> nombre, array_terminados[i] -> estado);
+    }
+    
+};

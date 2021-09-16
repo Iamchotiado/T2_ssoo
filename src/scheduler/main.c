@@ -17,7 +17,7 @@ Process* proceso_siguiente;
 int main(int argc, char **argv)
 {
 
-  int Q = 40;
+  int Q = 10;
   
   printf("Hello T2!\n");
 
@@ -253,6 +253,7 @@ int main(int argc, char **argv)
       // agregamos el siguiente proceso ready a la cpu y calculamos su quantum
       running = agregar_cpu(cola -> proceso);
       // si es que habia algun proceso ready para ser agregado a la cpu
+      
       if (running != NULL)
       {
         int quantum = calcular_quantum(cola, running -> n_fabrica, Q);
@@ -298,6 +299,7 @@ int main(int argc, char **argv)
       printf("\n TODOS LOS PROCESOS HAN TERMINADO SU EJECUCION \n");
       // escribir en archivo antes de terminar
       printf("Escribiendo en archivo...\n");
+      imprimir_terminados(terminados);
       break;
     }
     

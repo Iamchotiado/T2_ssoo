@@ -34,5 +34,7 @@ Process* chequear_quantum(Queue* cola, Process* proceso);
 
 void imprimir_cola(Process* proceso);
 void crear_array_terminados(int size);
+void agregar_terminado(Process* proceso);
+void imprimir_terminados(Process** array_terminados);
 
 
